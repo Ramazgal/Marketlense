@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarketLens</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="manifest"                             showResults(resultHtml);
+                        } catch (fetchError) {
+                            clearTimeout(timeoutId);
+                            if (fetchError.name === 'AbortError') {
+                                throw new Error('Сервер слишком долго не отвечает. Попробуйте позже.');
+                            }
+                            throw fetchError;
+                        }
+                    } catch (error) {ef="manifest.json">
+    <meta name="theme-color" content="#111827">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; background-color: #030712; }
+    .tab-btn.active { background-color: #7C3AED; color: white; }
+    .tab-btn:not(.active) { background-color: #374151; color: #d1d5db; }
+    .tab-btn:hover { background-color: #4c1d95; color: #f9fafb; }
+        #splash-screen { transition: opacity 0.5s ease-out; }
+        #splash-logo { animation: pulse 2s infinite ease-in-out; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background-color: #7C3AED; border-radius: 10px; border: 2px solid #1f2937; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+
+    <!-- СПЛЭШ-СКРИН -->
+    <div id="splash-screen" class="fixed inset-0 bg-gray-900 flex flex-col justify-center items-center z-50">
+        <div id="splash-logo">
+            <svg width="100" height="100" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.6725 16.6412L21 21M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 13V11" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 13V7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 13V9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="text-gray-400 mt-4 text-lg font-medium">MarketLens</p>
+    </div>
+
+    <div class="w-full max-w-6xl mx-auto p-4 sm:p-6">
+        <header class="text-center my-8">
+            <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">MarketLens</h1>
+            <p class="text-gray-400 mt-2 max-w-2xl mx-auto">Ваш AI-помощник для молниеносного анализа конкурентов на маркетплейсах</p>
+        </header>
+
+        <div class="sticky top-4 z-40 bg-gray-900/50 backdrop-blur-sm">
+            <div class="flex justify-center mb-8 bg-gray-800 p-1 rounded-xl max-w-md mx-auto shadow-lg">
+                <button data-view="analyze" class="tab-btn active w-1/3 font-semibold py-2 px-4 rounded-lg transition-all duration-300">Анализ</button>
+                <button data-view="search" class="tab-btn w-1/3 font-semibold py-2 px-4 rounded-lg transition-all duration-300">Поиск</button>
+                <button data-view="monitoring" class="tab-btn w-1/3 font-semibold py-2 px-4 rounded-lg transition-all duration-300">Мониторинг</button>
+            </div>
+        </div>
+
+        <main id="view-analyze" class="view-content">
+            <section class="bg-gray-800/60 backdrop-blur-sm border border-gray-700 rounded-2xl shadow-xl p-6 sm:p-8 space-y-6">
+                <div>
+                    <h2 class="text-2xl font-semibold">AI-анализ карточки</h2>
+                    <p class="text-gray-400 mt-2">Вставьте ссылку на товар с маркетплейса и получите моментальный инсайт.</p>
+                </div>
+                <form id="analyze-form" class="space-y-4">
+                    <div class="grid gap-4 sm:grid-cols-[minmax(0,1fr)_200px]">
+                        <label class="flex flex-col gap-2">
+                            <span class="text-sm font-medium text-gray-300">Ссылка на товар</span>
+                            <input id="analyze-url" type="url" placeholder="https://www.ozon.ru/..." class="w-full px-4 py-3 rounded-xl bg-gray-900/80 border border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 transition" required>
+                        </label>
+                        <label class="flex flex-col gap-2">
+                            <span class="text-sm font-medium text-gray-300">Маркетплейс</span>
+                            <select id="analyze-marketplace" class="w-full px-4 py-3 rounded-xl bg-gray-900/80 border border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 transition">
+                                <option value="ozon">Ozon</option>
+                                <option value="wildberries">Wildberries</option>
+                                <option value="yandex_market">Яндекс Маркет</option>
+                            </select>
+                        </label>
+                    </div>
+                    <label class="flex items-center gap-3 text-sm text-gray-300">
+                        <input id="analyze-with-competitors" type="checkbox" class="w-4 h-4 rounded border-gray-600 bg-gray-900/80 text-indigo-500 focus:ring-indigo-500" checked>
+                        Добавить в результат ближайших конкурентов
+                    </label>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <button type="submit" class="analyze-submit inline-flex items-center justify-center px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 transition font-semibold shadow-lg shadow-indigo-600/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400">Запустить анализ</button>
+                        <p id="analyze-status" class="text-sm text-gray-400">Готов к запуску</p>
+                    </div>
+                </form>
+            </section>
+            <section class="mt-10 space-y-4" aria-live="polite">
+                <div id="analyze-log" class="hidden bg-gray-800/40 border border-gray-700 rounded-2xl p-6 space-y-3"></div>
+            </section>
+        </main>
+        <main id="view-search" class="view-content hidden">
+            <section class="bg-gray-800/60 backdrop-blur-sm border border-gray-700 rounded-2xl shadow-xl p-6 sm:p-8 space-y-6">
+                <div>
+                    <h2 class="text-2xl font-semibold">Поиск лидеров ниши</h2>
+                    <p class="text-gray-400 mt-2">Введите ключевое слово, выберите маркетплейс и получите лучшие карточки.</p>
+                </div>
+                <form id="search-form" class="space-y-4">
+                    <div class="grid gap-4 sm:grid-cols-[minmax(0,1fr)_200px]">
+                        <label class="flex flex-col gap-2">
+                            <span class="text-sm font-medium text-gray-300">Ключевое слово</span>
+                            <input id="search-query" type="text" placeholder="например, умная колонка" class="w-full px-4 py-3 rounded-xl bg-gray-900/80 border border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 transition" required>
+                        </label>
+                        <label class="flex flex-col gap-2">
+                            <span class="text-sm font-medium text-gray-300">Маркетплейс</span>
+                            <select id="search-marketplace" class="w-full px-4 py-3 rounded-xl bg-gray-900/80 border border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 transition">
+                                <option value="">Все площадки</option>
+                                <option value="ozon">Ozon</option>
+                                <option value="wildberries">Wildberries</option>
+                                <option value="yandex_market">Яндекс Маркет</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="flex flex-wrap gap-4 items-center">
+                        <label class="flex items-center gap-3 text-sm text-gray-300">
+                            <span>Количество результатов:</span>
+                            <input id="search-limit" type="number" min="1" max="20" value="5" class="w-20 px-3 py-2 rounded-lg bg-gray-900/80 border border-gray-700 focus:border-indigo-500 focus:ring-indigo-500/40 transition">
+                        </label>
+                        <button type="submit" class="search-submit inline-flex items-center justify-center px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 transition font-semibold shadow-lg shadow-indigo-600/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400">Найти топ-товары</button>
+                        <p id="search-status" class="text-sm text-gray-400">Чтобы начать, введите запрос</p>
+                    </div>
+                </form>
+            </section>
+            <section class="mt-10 space-y-4" aria-live="polite">
+                <div id="search-results" class="hidden bg-gray-800/40 border border-gray-700 rounded-2xl p-6 space-y-3"></div>
+            </section>
+        </main>
+
+        <main id="view-monitoring" class="view-content hidden">
+            <section class="bg-gray-800/60 backdrop-blur-sm border border-gray-700 rounded-2xl shadow-xl p-6 sm:p-8 space-y-6">
+                <div>
+                    <h2 class="text-2xl font-semibold">Мониторинг конкурентов</h2>
+                    <p class="text-gray-400 mt-2">Добавьте карточки товаров, и мы проследим за их ценой, рейтингом и отзывами.</p>
+                </div>
+                <form id="monitoring-form" class="space-y-4">
+                    <div class="grid gap-4 sm:grid-cols-[minmax(0,1fr)_200px]">
+                        <label class="flex flex-col gap-2">
+                            <span class="text-sm font-medium text-gray-300">Ссылка на карточку конкурента</span>
+                            <input id="monitoring-url" type="url" placeholder="https://www.wildberries.ru/..." class="w-full px-4 py-3 rounded-xl bg-gray-900/80 border border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 transition" required>
+                        </label>
+                        <label class="flex flex-col gap-2">
+                            <span class="text-sm font-medium text-gray-300">Маркетплейс</span>
+                            <select id="monitoring-marketplace" class="w-full px-4 py-3 rounded-xl bg-gray-900/80 border border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 transition">
+                                <option value="ozon">Ozon</option>
+                                <option value="wildberries">Wildberries</option>
+                                <option value="yandex_market">Яндекс Маркет</option>
+                            </select>
+                        </label>
+                    </div>
+                    <label class="flex flex-col gap-2">
+                        <span class="text-sm font-medium text-gray-300">Заметка (необязательно)</span>
+                        <textarea id="monitoring-notes" rows="3" placeholder="Например: главный конкурент, держит цену 2990" class="w-full px-4 py-3 rounded-xl bg-gray-900/80 border border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 transition"></textarea>
+                    </label>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <button type="submit" class="monitoring-submit inline-flex items-center justify-center px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 transition font-semibold shadow-lg shadow-indigo-600/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400">Добавить в мониторинг</button>
+                        <p id="monitoring-status" class="text-sm text-gray-400">Ещё ничего не отслеживаем</p>
+                    </div>
+                </form>
+            </section>
+            <section class="mt-10 space-y-4" aria-live="polite">
+                <div id="monitoring-list" class="hidden space-y-4"></div>
+            </section>
+        </main>
+        
+        <!-- ... (остальные контейнеры) ... -->
+
+        <section id="results-container" class="hidden mt-12 bg-gray-800/40 border border-gray-700 rounded-2xl shadow-xl p-6 space-y-4" aria-live="polite"></section>
+    </div>
+    
+    <script>
+        const API_BASE_URL = (() => {
+            const backendPort = 3000;
+            const hostname = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+                ? 'localhost'
+                : window.location.hostname;
+            const protocol = window.location.protocol === 'file:' ? 'http:' : window.location.protocol;
+            return `${protocol}//${hostname}:${backendPort}`;
+        })();
+
+        const originalFetch = window.fetch.bind(window);
+        window.fetch = (input, init) => {
+            if (typeof input === 'string' && input.startsWith('/')) {
+                return originalFetch(new URL(input, API_BASE_URL), init);
+            }
+
+            if (input instanceof Request && input.url.startsWith('/')) {
+                const requestUrl = new URL(input.url, API_BASE_URL);
+                const updatedRequest = new Request(requestUrl, input);
+                return originalFetch(updatedRequest, init);
+            }
+
+            return originalFetch(input, init);
+        };
+
+        console.info('[MarketLens] API base is set to', API_BASE_URL);
+        window.MarketLensConfig = { API_BASE_URL };
+
+        const getResultsContainer = () => document.getElementById('results-container');
+
+        const escapeHtml = (value = '') =>
+            String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+
+        function showLoader(message = 'Загружаем данные...') {
+            const container = getResultsContainer();
+            if (!container) return;
+
+            container.classList.remove('hidden');
+            container.innerHTML = `
+                <div class="flex items-center gap-3 text-gray-200">
+                    <span class="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></span>
+                    <span>${message}</span>
+                </div>
+            `;
+        }
+
+        function hideLoader() {
+            const container = getResultsContainer();
+            if (!container) return;
+
+            container.innerHTML = '';
+            container.classList.add('hidden');
+        }
+
+        function showResults(htmlContent = '') {
+            const container = getResultsContainer();
+            if (!container) return;
+
+            container.classList.remove('hidden');
+            container.innerHTML = htmlContent;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabButtons = Array.from(document.querySelectorAll('.tab-btn'));
+            const views = Array.from(document.querySelectorAll('.view-content'));
+
+            const setActiveView = (viewId) => {
+                views.forEach((view) => {
+                    view.classList.toggle('hidden', view.id !== `view-${viewId}`);
+                });
+
+                tabButtons.forEach((btn) => {
+                    btn.classList.toggle('active', btn.dataset.view === viewId);
+                });
+            };
+
+            tabButtons.forEach((button) => {
+                button.addEventListener('click', () => setActiveView(button.dataset.view));
+            });
+
+            setActiveView('analyze');
+
+            const analyzeForm = document.getElementById('analyze-form');
+            const analyzeUrlInput = document.getElementById('analyze-url');
+            const analyzeMarketplace = document.getElementById('analyze-marketplace');
+            const analyzeWithCompetitors = document.getElementById('analyze-with-competitors');
+            const analyzeStatus = document.getElementById('analyze-status');
+            const analyzeLog = document.getElementById('analyze-log');
+            const searchForm = document.getElementById('search-form');
+            const searchQuery = document.getElementById('search-query');
+            const searchMarketplace = document.getElementById('search-marketplace');
+            const searchLimit = document.getElementById('search-limit');
+            const searchStatus = document.getElementById('search-status');
+            const searchResults = document.getElementById('search-results');
+            const monitoringForm = document.getElementById('monitoring-form');
+            const monitoringUrl = document.getElementById('monitoring-url');
+            const monitoringMarketplace = document.getElementById('monitoring-marketplace');
+            const monitoringNotes = document.getElementById('monitoring-notes');
+            const monitoringStatus = document.getElementById('monitoring-status');
+            const monitoringList = document.getElementById('monitoring-list');
+
+            if (analyzeForm) {
+                const analyzeButton = analyzeForm.querySelector('.analyze-submit');
+                analyzeForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    
+                    // Блокировка кнопки при клике
+                    if (analyzeButton) analyzeButton.disabled = true;
+
+                    try {
+                        const productUrl = analyzeUrlInput?.value?.trim();
+                        const marketplace = analyzeMarketplace?.value || 'ozon';
+                        const withCompetitors = !!analyzeWithCompetitors?.checked;
+
+                        if (!productUrl) {
+                            analyzeStatus.textContent = 'Добавьте ссылку на карточку товара';
+                            analyzeStatus.classList.remove('text-green-400', 'text-indigo-400');
+                            analyzeStatus.classList.add('text-yellow-400');
+                            showResults('<p class="text-sm text-yellow-400">Введите корректную ссылку и попробуйте снова.</p>');
+                            return;
+                        }
+
+                        analyzeStatus.textContent = 'Отправляем запрос...';
+                        analyzeStatus.classList.remove('text-green-400', 'text-red-400', 'text-yellow-400');
+                        analyzeStatus.classList.add('text-indigo-400');
+
+                        analyzeLog?.classList.add('hidden');
+                        showLoader('Анализирую карточку...');
+
+                        const params = new URLSearchParams({
+                            url: productUrl,
+                            marketplace,
+                            withCompetitors: String(withCompetitors)
+                        });
+
+                        // Таймаут 15 секунд
+                        const abortController = new AbortController();
+                        const timeoutId = setTimeout(() => abortController.abort(), 15000);
+
+                        try {
+                            const response = await fetch(`/analyze?${params.toString()}`, {
+                                signal: abortController.signal
+                            });
+                            clearTimeout(timeoutId);
+                            const data = await response.json().catch(() => ({}));
+
+                            if (!response.ok) {
+                                const issue = data?.error || response.statusText || 'Неизвестная ошибка';
+                                throw new Error(issue);
+                            }
+
+                            analyzeStatus.textContent = 'Готово: данные получены';
+                            analyzeStatus.classList.remove('text-indigo-400');
+                            analyzeStatus.classList.add('text-green-400');
+                            console.info('[MarketLens] analyze response', data);
+
+                            const resultHtml = `
+                                <div class="space-y-4">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-indigo-300">Результат анализа</h3>
+                                        <p class="text-sm text-gray-400">Источник: <span class="font-mono text-gray-200">${escapeHtml(data?.marketplace || marketplace)}</span></p>
+                                    </div>
+                                    <pre class="whitespace-pre-wrap break-words text-sm text-gray-200 bg-gray-900/60 border border-gray-700 rounded-xl p-4 overflow-x-auto">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
+                                </div>
+                            `;
+
+                            showResults(resultHtml);
+                        } catch (fetchError) {
+                            clearTimeout(timeoutId);
+                            if (fetchError.name === 'AbortError') {
+                                throw new Error('Сервер слишком долго не отвечает. Попробуйте позже.');
+                            }
+                            throw fetchError;
+                        }
+                    } catch (error) {
+                        analyzeStatus.textContent = 'Не удалось получить данные';
+                        analyzeStatus.classList.remove('text-indigo-400');
+                        analyzeStatus.classList.add('text-red-400');
+                        console.error('[MarketLens] analyze request failed', error);
+
+                        showResults(`<p class="text-red-400">Ошибка: ${escapeHtml(error?.message || String(error))}</p>`);
+                    } finally {
+                        // Разблокировка кнопки после завершения
+                        if (analyzeButton) analyzeButton.disabled = false;
+                    }
+                });
+            }
+
+            const formatPrice = (value) => {
+                const num = Number(value);
+                return Number.isFinite(num) ? `${num.toLocaleString('ru-RU')} ₽` : '—';
+            };
+
+            const formatRating = (value) => {
+                const num = Number(value);
+                return Number.isFinite(num) ? `${num.toFixed(1)} ★` : '—';
+            };
+
+            const renderMarketplaceColumn = (marketplace, items) => {
+                const labelMap = {
+                    ozon: 'Ozon',
+                    wildberries: 'Wildberries',
+                    yandex_market: 'Яндекс Маркет'
+                };
+
+                if (!items || items.length === 0) {
+                    return `
+                        <article class="bg-gray-900/50 border border-gray-700/80 rounded-2xl p-5 flex flex-col gap-3">
+                            <header class="flex items-center justify-between text-sm text-gray-400">
+                                <span>${labelMap[marketplace] || marketplace}</span>
+                                <span>—</span>
+                            </header>
+                            <p class="text-sm text-gray-500">Результаты по этой площадке не найдены.</p>
+                        </article>
+                    `;
+                }
+
+                const cards = items.slice(0, 3).map((item) => `
+                    <article class="bg-gray-900/70 border border-gray-700/80 rounded-2xl p-5 flex flex-col gap-3">
+                        <header class="flex items-center justify-between text-xs uppercase tracking-wide text-indigo-300">
+                            <span>${escapeHtml(labelMap[item.marketplace] || item.marketplace)}</span>
+                            <span class="text-gray-400">${escapeHtml(item.sku || '—')}</span>
+                        </header>
+                        <div class="space-y-2">
+                            <a href="${escapeHtml(item.url || '#')}" target="_blank" rel="noopener" class="text-base font-semibold text-indigo-200 hover:text-indigo-100 break-words">${escapeHtml(item.title || 'Без названия')}</a>
+                            <dl class="grid grid-cols-2 gap-2 text-sm text-gray-300">
+                                <div><dt class="text-gray-500">Цена</dt><dd class="font-medium">${formatPrice(item.price)}</dd></div>
+                                <div><dt class="text-gray-500">Рейтинг</dt><dd class="font-medium">${formatRating(item.rating)}</dd></div>
+                                <div><dt class="text-gray-500">Отзывы</dt><dd class="font-medium">${Number(item.reviews ?? 0).toLocaleString('ru-RU')}</dd></div>
+                                <div><dt class="text-gray-500">Бренд</dt><dd class="font-medium">${escapeHtml(item.brand || '—')}</dd></div>
+                            </dl>
+                        </div>
+                    </article>
+                `);
+
+                return cards.join('');
+            };
+
+            if (searchForm) {
+                const searchButton = searchForm.querySelector('.search-submit');
+                searchForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    
+                    // Блокировка кнопки при клике
+                    if (searchButton) searchButton.disabled = true;
+
+                    try {
+                        const query = searchQuery?.value?.trim();
+                        if (!query) {
+                            searchStatus.textContent = 'Введите запрос, чтобы продолжить';
+                            searchStatus.classList.remove('text-green-400', 'text-red-400');
+                            searchStatus.classList.add('text-yellow-400');
+                            showResults('<p class="text-sm text-yellow-400">Добавьте ключевое слово и повторите поиск.</p>');
+                            return;
+                        }
+
+                        const marketplace = searchMarketplace?.value || '';
+                        const limit = Number(searchLimit?.value || 5);
+
+                        searchStatus.textContent = 'Ищем топовые карточки...';
+                        searchStatus.classList.remove('text-green-400', 'text-red-400', 'text-yellow-400');
+                        searchStatus.classList.add('text-indigo-400');
+
+                        showLoader('Ищу лидеров рынка...');
+
+                        const url = new URL('/search', API_BASE_URL);
+                        if (marketplace) url.searchParams.set('marketplace', marketplace);
+                        url.searchParams.set('query', query);
+                        url.searchParams.set('limit', String(limit));
+
+                        // Таймаут 15 секунд
+                        const abortController = new AbortController();
+                        const timeoutId = setTimeout(() => abortController.abort(), 15000);
+
+                        try {
+                            const response = await fetch(url.toString(), {
+                                signal: abortController.signal
+                            });
+                            clearTimeout(timeoutId);
+                            const data = await response.json().catch(() => ({}));
+
+                            if (!response.ok) {
+                                const issue = data?.error || response.statusText || 'Неизвестная ошибка';
+                                throw new Error(issue);
+                            }
+
+                            searchStatus.textContent = `Найдено результатов: ${data?.count ?? 0}`;
+                            searchStatus.classList.remove('text-indigo-400');
+                            searchStatus.classList.add('text-green-400');
+                            console.info('[MarketLens] search response', data);
+
+                            const grouped = (data?.results || []).reduce((acc, item) => {
+                                const mp = item.marketplace || 'unknown';
+                                acc[mp] = acc[mp] || [];
+                                acc[mp].push(item);
+                                return acc;
+                            }, {});
+
+                            const marketplaces = marketplace ? [marketplace] : ['ozon', 'wildberries', 'yandex_market'];
+                            const columnsHtml = marketplaces
+                                .map((mp) => `<div class="flex flex-col gap-4">${renderMarketplaceColumn(mp, grouped[mp])}</div>`)
+                                .join('');
+
+                            const resultHtml = data?.results?.length
+                                ? `
+                                    <div class="space-y-4">
+                                        <header class="space-y-1">
+                                            <h3 class="text-lg font-semibold text-indigo-300">Лидеры по запросу «${escapeHtml(query)}»</h3>
+                                            <p class="text-sm text-gray-400">Отображаем до трёх карточек на каждой площадке.</p>
+                                        </header>
+                                        <div class="grid gap-6 md:grid-cols-3">${columnsHtml}</div>
+                                    </div>
+                                `
+                                : '<p class="text-sm text-gray-400">По вашему запросу ничего не найдено. Попробуйте изменить формулировку.</p>';
+
+                            showResults(resultHtml);
+                        } catch (fetchError) {
+                            clearTimeout(timeoutId);
+                            if (fetchError.name === 'AbortError') {
+                                throw new Error('Сервер слишком долго не отвечает. Попробуйте позже.');
+                            }
+                            throw fetchError;
+                        }
+                    } catch (error) {
+                        searchStatus.textContent = 'Не удалось выполнить поиск';
+                        searchStatus.classList.remove('text-indigo-400');
+                        searchStatus.classList.add('text-red-400');
+                        console.error('[MarketLens] search request failed', error);
+
+                        showResults(`<p class="text-red-400">Ошибка: ${escapeHtml(error?.message || String(error))}</p>`);
+                    } finally {
+                        // Разблокировка кнопки после завершения
+                        if (searchButton) searchButton.disabled = false;
+                    }
+                });
+            }
+
+            if (monitoringForm) {
+                const monitoringButton = monitoringForm.querySelector('.monitoring-submit');
+                monitoringForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    
+                    // Блокировка кнопки при клике
+                    if (monitoringButton) monitoringButton.disabled = true;
+
+                    try {
+                        const productUrl = monitoringUrl?.value?.trim();
+                        const marketplace = monitoringMarketplace?.value || 'ozon';
+                        const notes = monitoringNotes?.value?.trim();
+
+                        if (!productUrl) {
+                            monitoringStatus.textContent = 'Добавьте ссылку на карточку конкурента';
+                            monitoringStatus.classList.remove('text-green-400', 'text-indigo-400');
+                            monitoringStatus.classList.add('text-yellow-400');
+                            showResults('<p class="text-sm text-yellow-400">Укажите ссылку конкурента, чтобы добавить его в мониторинг.</p>');
+                            return;
+                        }
+
+                        monitoringStatus.textContent = 'Сохраняем карточку...';
+                        monitoringStatus.classList.remove('text-green-400', 'text-yellow-400', 'text-red-400');
+                        monitoringStatus.classList.add('text-indigo-400');
+
+                        showLoader('Добавляю в список...');
+
+                        // Таймаут 15 секунд
+                        const abortController = new AbortController();
+                        const timeoutId = setTimeout(() => abortController.abort(), 15000);
+
+                        try {
+                            const response = await fetch('/monitoring/add', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    productUrl,
+                                    marketplace,
+                                    notes: notes || undefined
+                                }),
+                                signal: abortController.signal
+                            });
+                            clearTimeout(timeoutId);
+                            const data = await response.json().catch(() => ({}));
+
+                            if (!response.ok) {
+                                const issue = data?.error || response.statusText || 'Неизвестная ошибка';
+                                throw new Error(issue);
+                            }
+
+                            monitoringStatus.textContent = 'Товар добавлен в мониторинг';
+                            monitoringStatus.classList.remove('text-indigo-400');
+                            monitoringStatus.classList.add('text-green-400');
+                            monitoringForm.reset();
+                            console.info('[MarketLens] monitoring item created', data);
+
+                            const successHtml = `
+                                <div class="space-y-2">
+                                    <p class="text-green-400 font-medium">Товар успешно добавлен в список наблюдения.</p>
+                                    <p class="text-sm text-gray-400">Ссылка: <a href="${escapeHtml(productUrl)}" target="_blank" rel="noopener" class="text-indigo-300 hover:text-indigo-200">${escapeHtml(productUrl)}</a></p>
+                                </div>
+                            `;
+
+                            showResults(successHtml);
+
+                            if (monitoringList) {
+                                monitoringList.classList.remove('hidden');
+                                const entry = document.createElement('article');
+                                entry.className = 'bg-gray-900/60 border border-gray-700 rounded-xl p-4 space-y-2';
+                                entry.innerHTML = `
+                                    <div class="flex items-center justify-between text-xs text-gray-500">
+                                        <span class="uppercase tracking-wide text-gray-400">${escapeHtml(marketplace)}</span>
+                                        <span>${new Date().toLocaleString('ru-RU')}</span>
+                                    </div>
+                                    <a href="${escapeHtml(productUrl)}" target="_blank" rel="noopener" class="text-sm text-indigo-300 hover:text-indigo-200 break-words">${escapeHtml(productUrl)}</a>
+                                    ${notes ? `<p class="text-sm text-gray-300">${escapeHtml(notes)}</p>` : ''}
+                                `;
+                                monitoringList.prepend(entry);
+                            }
+                        } catch (fetchError) {
+                            clearTimeout(timeoutId);
+                            if (fetchError.name === 'AbortError') {
+                                throw new Error('Сервер слишком долго не отвечает. Попробуйте позже.');
+                            }
+                            throw fetchError;
+                        }
+                    } catch (error) {
+                        monitoringStatus.textContent = 'Не удалось добавить товар';
+                        monitoringStatus.classList.remove('text-indigo-400');
+                        monitoringStatus.classList.add('text-red-400');
+                        console.error('[MarketLens] monitoring request failed', error);
+
+                        showResults(`<p class="text-red-400">Ошибка: ${escapeHtml(error?.message || String(error))}</p>`);
+                    } finally {
+                        // Разблокировка кнопки после завершения
+                        if (monitoringButton) monitoringButton.disabled = false;
+                    }
+                });
+            }
+        });
+
+        // СПЛЭШ-СКРИН
+        window.addEventListener('load', () => {
+            const splash = document.getElementById('splash-screen');
+            setTimeout(() => {
+                splash.style.opacity = '0';
+                setTimeout(() => splash.classList.add('hidden'), 500);
+            }, 1500);
+        });
+        
+        // ... (весь остальной JavaScript-код для фронтенда) ...
+    </script>
+</body>
+</html>

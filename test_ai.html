@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тестирование AI-Стратега MarketLens</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #030712;
+        }
+        #output {
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="w-full max-w-6xl mx-auto p-6">
+        <header class="text-center my-8">
+            <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-indigo-400">
+                Тестирование AI-Стратега MarketLens
+            </h1>
+            <p class="text-gray-400 mt-3 max-w-2xl mx-auto">
+                Лаборатория для проверки промптов и ответов нейросети
+            </p>
+        </header>
+
+        <main class="space-y-6">
+            <section class="bg-gray-800/60 backdrop-blur-sm border border-gray-700 rounded-2xl shadow-xl p-6">
+                <h2 class="text-xl font-semibold mb-4 text-indigo-300">Результаты тестирования</h2>
+                <pre id="output" class="bg-gray-900/80 border border-gray-700 rounded-xl p-4 text-sm text-gray-200 min-h-[200px]"></pre>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // ========================================
+        // Тестовые сценарии для AI-лаборатории
+        // ========================================
+
+        /**
+         * Сценарий 1: Товар пользователя значительно дороже конкурентов
+         * Проблема: Высокая цена без явных преимуществ
+         */
+        const scenario1 = {
+            name: 'Высокая цена без обоснования',
+            userEvidence: [
+                'Наш товар: Рубашка "Новичок"',
+                'Цена: 2990₽',
+                'Рейтинг: 4.3 (12 отзывов)',
+                'Описание: классическая мужская рубашка, хлопок 100%'
+            ],
+            competitorsEvidence: [
+                'Конкурент A: Рубашка классическая, цена 1890₽, рейтинг 4.7 (89 отзывов)',
+                'Конкурент B: Рубашка премиум, цена 2200₽, рейтинг 4.8 (156 отзывов), добавлена вышивка',
+                'Конкурент C: Рубашка стандарт, цена 1650₽, рейтинг 4.5 (43 отзыва)'
+            ],
+            tone: 'analytical',
+            focus: ['pricing', 'marketing']
+        };
+
+        /**
+         * Сценарий 2: Низкий рейтинг и отсутствие ключевых слов в названии
+         * Проблема: Плохая видимость в поиске + недоверие покупателей
+         */
+        const scenario2 = {
+            name: 'Низкий рейтинг и слабый SEO',
+            userEvidence: [
+                'Наш товар: Джинсы "Прорыв"',
+                'Цена: 3200₽',
+                'Рейтинг: 3.9 (8 отзывов)',
+                'Описание: удобные джинсы для повседневной носки'
+            ],
+            competitorsEvidence: [
+                'Конкурент A: Джинсы классические прямые, цена 3100₽, рейтинг 4.6 (120 отзывов)',
+                'Конкурент B: Джинсы мужские прямого кроя классические, цена 2950₽, рейтинг 4.7 (203 отзыва)',
+                'Конкурент C: Джинсы классика прямые синие, цена 3400₽, рейтинг 4.5 (87 отзывов)'
+            ],
+            tone: 'friendly',
+            focus: ['marketing', 'reviews']
+        };
+
+        /**
+         * Сценарий 3: Конкурентная цена и рейтинг, но мало отзывов
+         * Проблема: Низкое доверие из-за малого социального доказательства
+         */
+        const scenario3 = {
+            name: 'Недостаток социального доказательства',
+            userEvidence: [
+                'Наш товар: Кроссовки "Стандарт"',
+                'Цена: 4500₽',
+                'Рейтинг: 4.6 (15 отзывов)',
+                'Описание: спортивные кроссовки для бега, дышащая сетка'
+            ],
+            competitorsEvidence: [
+                'Конкурент A: Кроссовки для бега спортивные, цена 4400₽, рейтинг 4.7 (342 отзыва)',
+                'Конкурент B: Кроссовки беговые дышащие, цена 4650₽, рейтинг 4.5 (289 отзывов)',
+                'Конкурент C: Кроссовки мужские спортивные, цена 4300₽, рейтинг 4.6 (411 отзывов)'
+            ],
+            tone: 'analytical',
+            focus: ['reviews', 'promotion']
+        };
+
+        // ========================================
+        // Функция генерации промпта (из server.js)
+        // ========================================
+
+        /**
+         * Генерирует текст промпта для AI-стратега (без вызова API)
+         * @param {string[]} userEvidence - факты о нашем товаре
+         * @param {string[]} competitorsEvidence - факты о конкурентах
+         * @param {string} tone - тональность ответа (formal, friendly, analytical)
+         * @param {string[]} focus - фокусные области анализа
+         * @returns {string} - готовый текст промпта
+         */
+        function generateTestPrompt(userEvidence, competitorsEvidence, tone = 'analytical', focus = []) {
+            const focusLine = focus.length
+                ? `Фокус анализа: ${focus.map((item) => `#${item}`).join(' ')}.`
+                : 'Фокус анализа: общий обзор конкурентной стратегии.';
+
+            const prompt = `Ты — AI-консультант маркетплейсов MarketLens. На основе данных ниже подготовь структурированную стратегию.
+
+=== Наши факты ===
+${userEvidence.map((item, idx) => `${idx + 1}. ${item}`).join('\n')}
+
+=== Конкуренты ===
+${competitorsEvidence.map((item, idx) => `${idx + 1}. ${item}`).join('\n')}
+
+${focusLine}
+
+Тональность ответа: ${tone}.
+
+Структура ответа:
+1. Ключевые риски.
+2. Рекомендации по цене и ассортименту.
+3. Идеи по маркетингу и продвижению.
+4. Приоритетный To-Do список (3-5 задач).
+
+Используй маркированные списки, дай конкретику и цифры, если они есть.`;
+
+            return prompt;
+        }
+
+        // ========================================
+        // Запуск тестов при загрузке страницы
+        // ========================================
+
+        /**
+         * Экранирование HTML для безопасного отображения
+         */
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, (m) => map[m]);
+        }
+
+        /**
+         * Запуск всех тестовых сценариев и вывод результатов
+         */
+        function runTests() {
+            const scenarios = [scenario1, scenario2, scenario3];
+            let finalHtml = '';
+
+            scenarios.forEach((scenario, index) => {
+                // Генерируем промпт для текущего сценария
+                const prompt = generateTestPrompt(
+                    scenario.userEvidence,
+                    scenario.competitorsEvidence,
+                    scenario.tone,
+                    scenario.focus
+                );
+
+                // Формируем HTML-блок для отображения
+                finalHtml += `
+                    <div class="mb-8 pb-8 border-b border-gray-700 last:border-0">
+                        <h2 class="text-2xl font-bold text-indigo-400 mb-2">
+                            Сценарий ${index + 1}: ${escapeHtml(scenario.name)}
+                        </h2>
+                        <div class="mb-3 text-sm text-gray-400">
+                            <span class="inline-block mr-4">
+                                <strong>Тональность:</strong> ${escapeHtml(scenario.tone)}
+                            </span>
+                            <span class="inline-block">
+                                <strong>Фокус:</strong> ${scenario.focus.map(f => `#${f}`).join(', ')}
+                            </span>
+                        </div>
+                        <div class="bg-gray-950 border border-gray-700 rounded-lg p-4">
+                            <h3 class="text-xs uppercase tracking-wide text-gray-500 mb-2">Сгенерированный промпт:</h3>
+                            <pre class="text-sm text-gray-200 whitespace-pre-wrap">${escapeHtml(prompt)}</pre>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Вставляем результаты в элемент output
+            document.getElementById('output').innerHTML = finalHtml;
+        }
+
+        // Запускаем тесты при загрузке страницы
+        window.addEventListener('DOMContentLoaded', runTests);
+    </script>
+</body>
+</html>

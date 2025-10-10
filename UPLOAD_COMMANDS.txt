@@ -1,0 +1,46 @@
+# ========================================
+# Команды для загрузки MarketLens на Selectel
+# ========================================
+# Выполняй по очереди в PowerShell
+
+# 1. ЗАГРУЗИТЬ СКРИПТ АВТОДЕПЛОЯ НА СЕРВЕР
+scp C:\Marketlense\scripts\full-deploy-selectel.sh root@185.91.53.49:/root/
+
+# 2. ПОДКЛЮЧИТЬСЯ К СЕРВЕРУ И ЗАПУСТИТЬ АВТОДЕПЛОЙ
+# ssh root@185.91.53.49
+# Пароль: iiqvPqIEOzJy
+# Затем на сервере:
+# chmod +x /root/full-deploy-selectel.sh
+# /root/full-deploy-selectel.sh
+
+# 3. ПОСЛЕ АВТОДЕПЛОЯ - ЗАГРУЗИТЬ КОД ПРОЕКТА
+scp C:\Marketlense\server.js root@185.91.53.49:/home/marketlens/marketlens/
+scp C:\Marketlense\package.json root@185.91.53.49:/home/marketlens/marketlens/
+scp C:\Marketlense\package-lock.json root@185.91.53.49:/home/marketlens/marketlens/
+scp C:\Marketlense\ecosystem.config.js root@185.91.53.49:/home/marketlens/marketlens/
+scp C:\Marketlense\.env.production root@185.91.53.49:/home/marketlens/marketlens/.env
+scp C:\Marketlense\index.html root@185.91.53.49:/home/marketlens/marketlens/
+scp C:\Marketlense\manifest.json root@185.91.53.49:/home/marketlens/marketlens/
+
+# 4. ЗАГРУЗИТЬ СКРИПТЫ УПРАВЛЕНИЯ
+scp C:\Marketlense\scripts\deploy.sh root@185.91.53.49:/home/marketlens/marketlens/scripts/
+scp C:\Marketlense\scripts\backup.sh root@185.91.53.49:/home/marketlens/marketlens/scripts/
+scp C:\Marketlense\scripts\restore.sh root@185.91.53.49:/home/marketlens/marketlens/scripts/
+
+# 5. УСТАНОВИТЬ ПРАВИЛЬНЫЕ ПРАВА НА СЕРВЕРЕ
+# ssh root@185.91.53.49
+# chown -R marketlens:marketlens /home/marketlens/marketlens
+# chmod +x /home/marketlens/marketlens/scripts/*.sh
+
+# 6. ЗАПУСТИТЬ ПРИЛОЖЕНИЕ
+# su - marketlens
+# cd ~/marketlens
+# npm install --production
+# nano .env  # Добавить GEMINI_API_KEY
+# pm2 start ecosystem.config.js --env production
+# pm2 startup
+# pm2 save
+
+# ========================================
+# ГОТОВО! Проверь: http://185.91.53.49:3000
+# ========================================

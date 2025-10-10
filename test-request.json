@@ -1,0 +1,13 @@
+{
+  "userEvidence": [
+    "We sell wireless headphones for 2990 rubles",
+    "Rating: 4.8 stars",
+    "50 reviews per month"
+  ],
+  "competitorsEvidence": [
+    "Competitor A: 3500 rubles, rating 4.6",
+    "Competitor B: 2700 rubles, rating 4.2"
+  ],
+  "tone": "analytical",
+  "focus": ["pricing", "marketing"]
+}
